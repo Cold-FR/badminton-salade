@@ -1,13 +1,13 @@
-const { app, BrowserWindow, BrowserView } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const logger = require("electron-log");
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
+const DeltaUpdater = require("@electron-delta/updater");
+
+let mainWindow;
 
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  const window = new BrowserWindow({
     icon: path.join(__dirname, '/icon.png'),
     backgroundColor: "#9569f3",
     webPreferences: {
@@ -18,11 +18,31 @@ const createWindow = () => {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
-  mainWindow.webContents.openDevTools();
+  window.on('closed', () => {
+    mainWindow = null
+  });
+
+  window.loadFile(path.join(__dirname, 'index.html'));
+  window.webContents.openDevTools();
+
+	return window;
 };
 
-app.on('ready', createWindow);
+app.on('ready', async () => {
+	const deltaUpdater = new DeltaUpdater({
+    logger,
+    autoUpdater: require("electron-updater").autoUpdater,
+  });
+  try {
+    await deltaUpdater.boot({
+      splashScreen: true
+    });
+  } catch (error) {
+    logger.error(error);
+  }
+
+	mainWindow = createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -32,6 +52,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    mainWindow = createWindow();
   }
 });
