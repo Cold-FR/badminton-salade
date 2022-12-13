@@ -9,7 +9,7 @@ let mainWindow;
 const createWindow = () => {
   const window = new BrowserWindow({
     icon: path.join(__dirname, '/icon.png'),
-    backgroundColor: "#9569f3",
+    backgroundColor: "#2ECC71",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       plugins: true,
