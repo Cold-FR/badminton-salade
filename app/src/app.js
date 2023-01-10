@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const logger = require("electron-log");
+const logger = require('electron-log');
+const ipc = require("electron").ipcMain;
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -13,6 +14,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       plugins: true,
+      nodeIntegration: true,
       contextIsolation: false,
       webSecurity: false
     }
@@ -23,6 +25,7 @@ const createWindow = () => {
   });
 
   window.loadFile(path.join(__dirname, 'index.html'));
+  window.maximize();
   window.webContents.openDevTools();
 
 	return window;
@@ -54,4 +57,8 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     mainWindow = createWindow();
   }
+});
+
+ipc.on('version', event => {
+  event.sender.send('version', app.getVersion());
 });

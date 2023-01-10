@@ -9,3 +9,8 @@ body {
   font-family: "Ubuntu";
   src: url("../fonts/power.woff2") format("woff2");
 }
+
+.content {
+  width: 60%;
+  margin: 0 auto;
+}
